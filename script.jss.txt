@@ -1,0 +1,85 @@
+const gameBoard = document.getElementById('gameBoard');
+const restartBtn = document.getElementById('restartBtn');
+const resultScreen = document.getElementById('resultScreen');
+const resultMessage = document.getElementById('resultMessage');
+const newGameBtn = document.getElementById('newGameBtn');
+let board = ['', '', '', '', '', '', '', '', ''];
+let currentPlayer = 'X';
+let gameActive = true;
+
+const winningConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
+
+function createBoard() {
+    gameBoard.innerHTML = ''; // Clear previous cells
+    board.forEach((cell, index) => {
+        const cellElement = document.createElement('div');
+        cellElement.classList.add('cell');
+        cellElement.setAttribute('data-index', index);
+        cellElement.innerText = cell;
+        cellElement.addEventListener('click', handleCellClick);
+        gameBoard.appendChild(cellElement);
+    });
+}
+
+function handleCellClick(event) {
+    const clickedCell = event.target;
+    const clickedIndex = clickedCell.getAttribute('data-index');
+
+    if (board[clickedIndex] !== '' || !gameActive) {
+        return;
+    }
+
+    board[clickedIndex] = currentPlayer;
+    clickedCell.innerText = currentPlayer;
+
+    checkWinner();
+}
+
+function checkWinner() {
+    for (const condition of winningConditions) {
+        const [a, b, c] = condition;
+        if (board[a] === '' || board[b] === '' || board[c] === '') {
+            continue;
+        }
+        if (board[a] === board[b] && board[b] === board[c]) {
+            gameActive = false;
+            displayResult(`${currentPlayer} wins!`);
+            return;
+        }
+    }
+
+    if (!board.includes('')) {
+        gameActive = false;
+        displayResult("It's a draw!");
+    } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    }
+}
+
+function displayResult(message) {
+    resultMessage.innerText = message;
+    resultScreen.style.display = 'flex'; // Show result screen
+    gameBoard.style.display = 'none'; // Hide game board
+}
+
+function restartGame() {
+    board = ['', '', '', '', '', '', '', '', ''];
+    currentPlayer = 'X';
+    gameActive = true;
+    createBoard();
+    resultScreen.style.display = 'none'; // Hide result screen
+    gameBoard.style.display = 'grid'; // Show game board
+}
+
+newGameBtn.addEventListener('click', restartGame);
+restartBtn.addEventListener('click', restartGame);
+createBoard();
